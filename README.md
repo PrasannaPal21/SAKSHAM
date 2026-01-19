@@ -8,6 +8,30 @@ The project treats consent not as a static checkbox, but as a **verifiable, purp
 
 ---
 
+## 🚀 Getting Started
+
+### Frontend (User Interface)
+
+This directory contains the React/Vite Frontend.
+
+1. **Install Dependencies**:
+   ```bash
+   npm install
+   ```
+
+2. **Run Development Server**:
+   ```bash
+   npm run dev
+   ```
+   Access the UI at `http://localhost:5173`.
+
+
+### Backend (API & Ledger)
+
+For backend setup, API documentation, and database schema, please refer to the [Backend README](./backend/README.md).
+
+---
+
 ## 🚩 Problem Statement
 
 In today’s digital ecosystem:

@@ -1,0 +1,583 @@
+================================================================================
+                    SAKSHAM - STEP BY STEP USAGE GUIDE
+================================================================================
+
+This guide will walk you through setting up and using the SAKSHAM Consent 
+Management System from scratch.
+
+================================================================================
+PART 1: PREREQUISITES
+================================================================================
+
+Before you begin, ensure you have the following installed:
+
+1. Node.js (v16 or higher)
+   - Check: node --version
+   - Download: https://nodejs.org/
+
+2. Python 3.9 or higher
+   - Check: python3 --version
+   - Download: https://www.python.org/downloads/
+
+3. A Supabase Account (free tier works)
+   - Sign up at: https://supabase.com
+
+4. Git (optional, for version control)
+   - Check: git --version
+
+================================================================================
+PART 2: SUPABASE PROJECT SETUP
+================================================================================
+
+Step 1: Create a Supabase Project
+----------------------------------
+1. Go to https://app.supabase.com
+2. Click "New Project"
+3. Fill in:
+   - Project Name: "SAKSHAM" (or any name)
+   - Database Password: (save this securely)
+   - Region: Choose closest to you
+4. Click "Create new project"
+5. Wait 2-3 minutes for project to initialize
+
+Step 2: Get Your Supabase Credentials
+--------------------------------------
+1. In your Supabase project dashboard, go to:
+   Settings → API (left sidebar)
+2. Copy the following:
+   - Project URL (looks like: https://xxxxx.supabase.co)
+   - anon/public key (under "Project API keys")
+   - service_role key (keep this secret! Only for backend)
+
+Step 3: Set Up Database Schema
+-------------------------------
+1. In Supabase dashboard, go to: SQL Editor (left sidebar)
+2. Click "New query"
+3. Open the file: backend/schema.sql
+4. Copy ALL the SQL code from schema.sql
+5. Paste it into the SQL Editor
+6. Click "Run" (or press Ctrl+Enter)
+7. You should see "Success. No rows returned"
+8. Verify tables were created:
+   - Go to: Table Editor (left sidebar)
+   - You should see these tables:
+     * applications
+     * purposes
+     * consents
+     * consent_purposes
+     * consent_receipts
+     * audit_events
+
+Step 3b: Set Up Row Level Security (RLS) Policies
+-------------------------------------------------
+⚠️ IMPORTANT: This step is required for the backend to work properly!
+
+1. In Supabase SQL Editor, click "New query" again
+2. Open the file: backend/fix_rls_policies.sql
+3. Copy ALL the SQL code from fix_rls_policies.sql
+4. Paste it into the SQL Editor
+5. Click "Run" (or press Ctrl+Enter)
+6. You should see "Success. No rows returned"
+
+This sets up the necessary permissions so the backend can:
+- Create consent records
+- Create application records
+- Insert audit events
+- And other necessary operations
+
+Step 4: Create a Test User Account
+-----------------------------------
+Option A: Via Supabase Dashboard (Recommended for testing)
+1. Go to: Authentication → Users
+2. Click "Add user" → "Create new user"
+3. Enter:
+   - Email: admin@test.com (or your email)
+   - Password: (choose a secure password)
+   - Auto Confirm User: ✅ (check this box)
+4. Click "Create user"
+5. Note down the email and password for login
+
+Option B: Via Application Sign-Up
+1. Start the frontend (see Part 4)
+2. Use the Sign Up form on the login page
+3. Check your email for confirmation link (if email confirmation is enabled)
+
+================================================================================
+PART 3: BACKEND SETUP
+================================================================================
+
+Step 1: Navigate to Backend Directory
+--------------------------------------
+Open terminal/command prompt and run:
+  cd backend
+
+Step 2: Create Virtual Environment
+-----------------------------------
+On macOS/Linux:
+  python3 -m venv venv
+  source venv/bin/activate
+
+On Windows:
+  python -m venv venv
+  venv\Scripts\activate
+
+You should see (venv) in your terminal prompt.
+
+Step 3: Install Dependencies
+-----------------------------
+  pip install -r requirements.txt
+
+This installs:
+- FastAPI (web framework)
+- Uvicorn (ASGI server)
+- Supabase (Python client)
+- Other required packages
+
+Step 4: Create Environment File
+--------------------------------
+1. Create a file named .env in the backend/ directory
+2. Add the following content (replace with YOUR values):
+
+   SUPABASE_URL=https://your-project-id.supabase.co
+   SUPABASE_KEY=your-service-role-key-here
+
+   Note: Use the service_role key (not anon key) for backend.
+   Get it from: Supabase Dashboard → Settings → API → service_role key
+
+Step 5: Verify Backend Setup
+-----------------------------
+Run the backend server:
+  uvicorn main:app --reload
+
+You should see:
+  INFO:     Uvicorn running on http://127.0.0.1:8000
+  INFO:     Application startup complete.
+
+Test the API:
+  Open browser: http://127.0.0.1:8000
+  You should see: {"message": "SAKSHAM Consent Manager API is running"}
+
+Keep this terminal window open! The backend must be running.
+
+================================================================================
+PART 4: FRONTEND SETUP
+================================================================================
+
+Step 1: Navigate to Project Root
+---------------------------------
+Open a NEW terminal window (keep backend running in the first one).
+Navigate to the project root directory:
+  cd /path/to/SAKSHAM
+  (or just: cd .. if you're in backend/)
+
+Step 2: Install Dependencies
+-----------------------------
+  npm install
+
+This installs:
+- React
+- Vite (build tool)
+- Supabase JS client
+- Other frontend dependencies
+
+Step 3: Create Environment File
+---------------------------------
+1. Create a file named .env in the project root (same level as package.json)
+2. Add the following content (replace with YOUR values):
+
+   VITE_SUPABASE_URL=https://your-project-id.supabase.co
+   VITE_SUPABASE_ANON_KEY=your-anon-key-here
+
+   Note: Use the anon/public key (not service_role) for frontend.
+   Get it from: Supabase Dashboard → Settings → API → anon public key
+
+Step 4: Start Frontend Development Server
+------------------------------------------
+  npm run dev
+
+You should see:
+  VITE v7.x.x  ready in xxx ms
+  ➜  Local:   http://localhost:5173/
+
+Open this URL in your browser.
+
+================================================================================
+PART 5: USING THE APPLICATION
+================================================================================
+
+Step 1: Login
+-------------
+1. Open http://localhost:5173 in your browser
+2. You'll see the SAKSHAM login page
+3. Enter your credentials:
+   - Email: (the email you created in Supabase)
+   - Password: (the password you set)
+4. Click "Login"
+
+If you see "Invalid login credentials":
+  - Make sure the user exists in Supabase
+  - Check that email confirmation is not required (or confirm your email)
+  - Verify your .env file has correct Supabase credentials
+
+Step 2: Understanding the Interface
+------------------------------------
+After login, you'll see:
+- Header with "SAKSHAM BETA" title
+- A dropdown: "Viewing as:" with options:
+  * User
+  * App Admin
+  * Regulator
+- Sign Out button
+
+You can switch between views using the dropdown (no separate login needed).
+
+================================================================================
+PART 6: USER DASHBOARD - Managing Your Consents
+================================================================================
+
+Step 1: Access User Dashboard
+------------------------------
+1. Make sure "Viewing as: User" is selected in the dropdown
+2. You'll see the User Dashboard
+
+Step 2: View Consent History
+-----------------------------
+- The dashboard shows your consent history from audit logs
+- Each entry shows:
+  * Event type (CONSENT_GRANTED, CONSENT_REVOKED)
+  * Timestamp
+  * Event details (JSON payload)
+
+Step 3: Revoke a Consent
+-------------------------
+1. Find a consent with status "CONSENT_GRANTED"
+2. Click the "Revoke Consent" button
+3. A confirmation alert will appear
+4. The consent status will update to "revoked"
+5. Refresh the page to see updated history
+
+Note: Consents are typically granted by App Admins (see Admin Dashboard).
+
+================================================================================
+PART 7: ADMIN DASHBOARD - Requesting Consent
+================================================================================
+
+Step 1: Access Admin Dashboard
+-------------------------------
+1. Select "Viewing as: App Admin" from the dropdown
+2. You'll see the App Admin Dashboard
+
+Step 2: Request Consent for a User
+------------------------------------
+Fill in the form:
+
+1. App ID:
+   - Default: "app-123-xyz"
+   - This identifies your application
+   - In production, this would be registered in the applications table
+
+2. Target User ID:
+   - Default: Your own user ID (shown in User Dashboard)
+   - You can change this to another user's ID
+   - Format: UUID (e.g., "123e4567-e89b-12d3-a456-426614174000")
+
+3. Purpose:
+   - Select from dropdown:
+     * CORE_FUNCTION: Core functionality of the app
+     * ANALYTICS: Usage analytics
+     * MARKETING: Promotional offers
+
+4. Click "Request & Grant (Simulated)"
+   - This creates a consent record
+   - Generates a cryptographic receipt
+   - Logs the event in audit trail
+
+Step 3: View Generated Receipt
+-------------------------------
+After clicking the button, you'll see:
+- A "Consent Receipt Generated" section
+- JSON containing:
+  * receipt_id
+  * consent_id
+  * receipt_payload (with all consent details)
+  * signature (cryptographic proof)
+  * timestamp
+
+This receipt is verifiable and can be used as proof of consent.
+
+Step 4: Understanding the Receipt
+-----------------------------------
+The receipt contains:
+- User ID: Who granted consent
+- App ID: Which app requested it
+- Purposes: What the consent is for
+- Expiry: When it expires (default: 24 hours)
+- Signature: Cryptographic proof that can't be forged
+
+================================================================================
+PART 8: REGULATOR DASHBOARD - Audit & Compliance
+================================================================================
+
+Step 1: Access Regulator Dashboard
+-----------------------------------
+1. Select "Viewing as: Regulator" from the dropdown
+2. You'll see the Regulator Dashboard
+
+Step 2: View Audit Logs
+------------------------
+The dashboard shows a table with:
+- Time: When the event occurred
+- Event: Type of event (CONSENT_GRANTED, CONSENT_REVOKED, etc.)
+- Actor: Who performed the action (USER, APP, REGULATOR)
+- Hash (Current): Cryptographic hash for chain verification
+
+Step 3: Refresh Logs
+---------------------
+- Click "Refresh Logs" to get the latest audit events
+- Shows up to 20 most recent events
+
+Step 4: Verify Hash Chain Integrity
+------------------------------------
+1. Click "Verify Hash Chain" button
+2. The system verifies:
+   - Each event's hash is correctly calculated
+   - The chain is unbroken (no tampering)
+   - All events are valid
+
+3. You'll see a status message:
+   - "VALID": Chain is intact, no tampering detected
+   - "INVALID": Chain is broken, possible tampering
+   - Shows count of verified blocks
+
+This is crucial for compliance audits - it proves the audit log hasn't been
+modified.
+
+================================================================================
+PART 9: COMPLETE WORKFLOW EXAMPLE
+================================================================================
+
+Here's a complete end-to-end workflow:
+
+1. START BACKEND:
+   cd backend
+   source venv/bin/activate  # or venv\Scripts\activate on Windows
+   uvicorn main:app --reload
+
+2. START FRONTEND (new terminal):
+   cd /path/to/SAKSHAM
+   npm run dev
+
+3. LOGIN:
+   - Open http://localhost:5173
+   - Login with your Supabase user credentials
+
+4. AS ADMIN - GRANT CONSENT:
+   - Switch to "App Admin" view
+   - Fill in consent request form
+   - Click "Request & Grant"
+   - Copy the receipt (for verification later)
+
+5. AS USER - VIEW CONSENT:
+   - Switch to "User" view
+   - See the consent in your history
+   - Optionally revoke it
+
+6. AS REGULATOR - AUDIT:
+   - Switch to "Regulator" view
+   - View all audit events
+   - Verify hash chain integrity
+
+7. VERIFY RECEIPT (via API):
+   You can verify a receipt using the backend API:
+   
+   POST http://127.0.0.1:8000/consent/verify
+   Headers: Content-Type: application/json
+   Body:
+   {
+     "receipt": {
+       "receipt_payload": { ... },
+       "signature": "..."
+     }
+   }
+
+================================================================================
+PART 10: TROUBLESHOOTING
+================================================================================
+
+Problem: "Invalid supabaseUrl: Must be a valid HTTP or HTTPS URL"
+Solution:
+- Check your .env file in project root
+- Ensure VITE_SUPABASE_URL starts with https://
+- Restart the frontend server (npm run dev)
+
+Problem: "Missing SUPABASE_URL or SUPABASE_KEY"
+Solution:
+- Check your .env file in backend/ directory
+- Ensure no extra spaces or quotes around values
+- Restart the backend server
+
+Problem: "Invalid login credentials"
+Solution:
+- Verify user exists in Supabase Dashboard → Authentication → Users
+- Check "Auto Confirm User" is enabled for test users
+- Verify email/password are correct
+- Check Supabase URL and keys in .env files
+
+Problem: Backend API returns 401 Unauthorized
+Solution:
+- Make sure you're logged in to the frontend
+- Check that the Authorization header includes the Bearer token
+- Verify backend can connect to Supabase (check .env)
+
+Problem: Database tables not found
+Solution:
+- Run the schema.sql script in Supabase SQL Editor
+- Check for any SQL errors
+- Verify tables exist in Table Editor
+
+Problem: CORS errors in browser console
+Solution:
+- Backend CORS is configured to allow all origins
+- Ensure backend is running on http://127.0.0.1:8000
+- Check that frontend is calling the correct API URL
+
+Problem: "Module not found" errors
+Solution:
+- Run: npm install (for frontend)
+- Run: pip install -r requirements.txt (for backend)
+- Make sure you're in the correct directory
+
+Problem: Port already in use
+Solution:
+- Backend: Change port: uvicorn main:app --reload --port 8001
+- Frontend: Vite will automatically use next available port
+- Or kill the process using the port
+
+================================================================================
+PART 11: API ENDPOINTS REFERENCE
+================================================================================
+
+Backend runs on: http://127.0.0.1:8000
+
+Available Endpoints:
+
+1. GET /
+   - Health check
+   - Returns: {"message": "SAKSHAM Consent Manager API is running"}
+
+2. POST /consent/grant
+   - Grant consent (requires authentication)
+   - Headers: Authorization: Bearer <token>
+   - Body: {
+       "app_id": "app-123",
+       "user_id": "user-uuid",
+       "purposes": [{"purpose_code": "CORE_FUNCTION", "data_categories": ["email"]}],
+       "expiry_hours": 24
+     }
+   - Returns: Consent receipt with signature
+
+3. POST /consent/revoke
+   - Revoke consent (requires authentication)
+   - Headers: Authorization: Bearer <token>
+   - Body: {
+       "consent_id": "uuid",
+       "reason": "User requested revocation"
+     }
+   - Returns: {"status": "revoked", "consent_id": "..."}
+
+4. POST /consent/verify
+   - Verify a receipt (no auth required)
+   - Body: {
+       "receipt": {
+         "receipt_payload": {...},
+         "signature": "..."
+       }
+     }
+   - Returns: Verification result with status
+
+5. GET /audit/events
+   - Get audit logs (requires authentication)
+   - Headers: Authorization: Bearer <token>
+   - Query params: ?limit=20&user_id=<uuid>
+   - Returns: Array of audit events
+
+6. GET /audit/verify-chain
+   - Verify hash chain integrity (requires authentication)
+   - Headers: Authorization: Bearer <token>
+   - Returns: Chain verification result
+
+================================================================================
+PART 12: IMPORTANT NOTES
+================================================================================
+
+1. SECURITY:
+   - Never commit .env files to git
+   - Use service_role key only in backend (never in frontend)
+   - Use anon key in frontend only
+   - In production, use proper environment variable management
+
+2. DATABASE:
+   - The schema.sql creates all necessary tables
+   - Purposes are pre-seeded (CORE_FUNCTION, ANALYTICS, MARKETING)
+   - Row Level Security (RLS) is enabled on consents table
+
+3. AUTHENTICATION:
+   - Uses Supabase Auth (JWT tokens)
+   - Tokens are automatically included in API requests
+   - Session persists across page refreshes
+
+4. ROLE SWITCHING:
+   - Currently, role switching is UI-only (no backend enforcement)
+   - Any authenticated user can access all views
+   - In production, implement proper RBAC
+
+5. TESTING:
+   - Use test emails for development
+   - Auto-confirm users in Supabase for easier testing
+   - Check Supabase logs for debugging
+
+6. PRODUCTION DEPLOYMENT:
+   - Set up proper environment variables
+   - Use HTTPS for all connections
+   - Configure CORS properly
+   - Set up database backups
+   - Implement rate limiting
+   - Add proper error handling
+
+================================================================================
+QUICK START CHECKLIST
+================================================================================
+
+□ Create Supabase project
+□ Get Supabase URL and keys
+□ Run schema.sql in Supabase SQL Editor
+□ Create test user in Supabase
+□ Backend: Create venv and install dependencies
+□ Backend: Create .env with SUPABASE_URL and SUPABASE_KEY
+□ Backend: Start server (uvicorn main:app --reload)
+□ Frontend: Install dependencies (npm install)
+□ Frontend: Create .env with VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY
+□ Frontend: Start server (npm run dev)
+□ Login to application
+□ Test User Dashboard
+□ Test Admin Dashboard (grant consent)
+□ Test Regulator Dashboard (view audit logs)
+
+================================================================================
+SUPPORT & RESOURCES
+================================================================================
+
+- Supabase Docs: https://supabase.com/docs
+- FastAPI Docs: https://fastapi.tiangolo.com
+- React Docs: https://react.dev
+- Project README: ./README.md
+- Backend README: ./backend/README.md
+
+================================================================================
+END OF GUIDE
+================================================================================
+
+For questions or issues, refer to the troubleshooting section or check the
+project documentation.
+
+Happy consent managing! 🛡️
