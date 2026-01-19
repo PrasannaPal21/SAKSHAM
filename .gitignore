@@ -22,3 +22,10 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables (sensitive data)
+.env
+.env.local
+.env.*.local
+backend/.env
+backend/.env.local
