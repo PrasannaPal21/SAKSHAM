@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "https://saksham-api.vercel.app";
 
 export default function AdminDashboard({ userId: currentUserId, token }) {
     const [appId, setAppId] = useState("app-demo-v1");
